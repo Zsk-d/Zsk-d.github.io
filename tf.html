@@ -8,6 +8,14 @@
     <meta name="viewport"
         content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
     <title>1H文件共享</title>
+    <style>
+        .action-btn {
+            height: 50px;
+            width: 80px;
+            margin: 10px;
+            border-radius: 5px;
+        }
+    </style>
 </head>
 
 <body>
@@ -19,11 +27,9 @@
             <br><br>
             <input type="file" value="" id="fileInput" name="files" onchange="fileSelected()" />
             <div style="margin:15px auto;">
-                <input id="download" type="button" value="提取" style=" height: 50px;width: 80px;margin:10px"
-                    onclick="download()" />
-                <input id="upload" type="button" value="上传" style=" height: 50px;width: 80px;margin:10px"
-                    onclick="uploadFile()" />
-                <input id="clear" type="button" value="清空" style=" height: 50px;width: 80px;margin:10px" onclick="document.getElementById('key').value='';
+                <input class="action-btn" id="download" type="button" value="提取" onclick="download()" />
+                <input class="action-btn" id="upload" type="button" value="上传" onclick="uploadFile()" />
+                <input class="action-btn" id="clear" type="button" value="清空" onclick="document.getElementById('key').value='';
                     document.getElementById('msg').innerHTML ='';resetProgress(); document.getElementById('fileName').innerHTML = '';
                     document.getElementById('fileSize').innerHTML = '';
                     document.getElementById('fileType').innerHTML = '';" />
@@ -137,7 +143,7 @@
                 document.getElementById('percentNumber').innerHTML = percentComplete + '%';
                 let jindutiao = document.getElementById("progress");
                 jindutiao.style.width = percentComplete + "%";
-                if(percentComplete == 100){
+                if (percentComplete == 100) {
                     showMessage("处理中...");
                 }
             } else {
