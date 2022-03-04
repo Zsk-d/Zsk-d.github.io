@@ -7,34 +7,59 @@
     <meta name="msapplication-tap-highlight" content="no">
     <meta name="viewport"
         content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
-    <title>1H文件共享</title>
+    <title>1H 文件共享</title>
     <style>
         .action-btn {
-            height: 50px;
-            width: 80px;
-            margin: 10px;
+            height: 60px;
+            width: 90px;
+            margin: 40px 13px;
             border-radius: 5px;
+            border: 0;
+            box-shadow: 0 8px 16px 0 rgb(0 0 0 / 20%), 0 6px 20px 0 rgb(0 0 0 / 19%);
+            font-weight: bold;
+            font-size: large;
+        }
+
+        #key {
+            height: 43px;
+            width: 73%;
+            font-size: xx-large;
+            border: 0;
+            border-radius: 5px;
+            padding: 10px;
+            text-align: center;
+            font-family: math;
+            letter-spacing: 10px;
+            font-weight: bold;
+            box-shadow: 0 8px 16px 0 rgb(203 25 25 / 20%), 0 6px 20px 0 rgb(0 0 0 / 19%);
         }
     </style>
 </head>
 
 <body>
     <div class="app" style="text-align: center;">
-        <h2>1H文件共享</h2>
-        <div>
-            <label style="font-size: x-large;">KEY: </label><br><input id="key"
-                style="height: 40px;width: 70%;font-size: xx-large;border-radius: 5px;padding: 10px;text-align: center;" />
-            <br><br>
-            <input type="file" value="" id="fileInput" name="files" onchange="fileSelected()" />
-            <div style="margin:15px auto;">
-                <input class="action-btn" id="download" type="button" value="提取" onclick="download()" />
-                <input class="action-btn" id="upload" type="button" value="上传" onclick="uploadFile()" />
-                <input class="action-btn" id="clear" type="button" value="清空" onclick="document.getElementById('key').value='';
+        <h2 style="margin-top: 50px;">1H 文件共享</h2>
+        <div style="margin-top: 50px;">
+            <!-- <label style="font-size: x-large;">KEY </label> --><input id="key" placeholder="Key" />
+            <br>
+            <input type="file" value="" id="fileInput" name="files" onchange="fileSelected()"
+                style="opacity: 0;height: 0;" />
+            <!-- 按钮 -->
+            <div style="margin:0 auto;">
+                <input class="action-btn" id="download" type="button" value="提 取" onclick="download()" />
+                <input class="action-btn" id="upload" type="button" value="上 传" onclick="uploadFile()" />
+                <input class="action-btn" id="clear" type="button" value="清 空" onclick="document.getElementById('key').value='';
                     document.getElementById('msg').innerHTML ='';resetProgress(); document.getElementById('fileName').innerHTML = '';
                     document.getElementById('fileSize').innerHTML = '';
+                    document.getElementById('fileInput').value = '';
                     document.getElementById('fileType').innerHTML = '';" />
             </div>
-            <div style="margin:20px;text-align: left;">
+            <!-- 提示条 -->
+            <div style="margin:0 auto;text-align: center;font-size: large;font-weight: bold;">
+                <div id="msg"></div>
+            </div>
+            <!-- 上传的文件信息 -->
+            <div style="margin: 0 auto;text-align: left;width:80%;font-size: large;font-weight: bold;">
                 <div id="fileName"></div>
                 <div id="fileSize"></div>
                 <div id="fileType"></div>
@@ -50,9 +75,6 @@
                 </div>
                 <br><br>
             </div>
-            <div style="margin:10px;text-align: left;">
-                <div id="msg"></div>
-            </div>
         </div>
     </div>
     <script type="text/javascript">
@@ -66,14 +88,15 @@
         function setUploading(loading) {
             let btn = document.getElementById("upload");
             if (loading) {
-                btn.value = "取消上传";
+                btn.value = "取 消 上 传";
                 document.getElementById("upload-parent").style.display = "block";
             } else {
-                btn.value = "上传";
+                btn.value = "上 传";
                 document.getElementById("upload-parent").style.display = "none";
             }
             isUploading = loading;
         }
+
         function fileSelected() {
             let file = document.getElementById('fileInput').files[0];
             if (file) {
@@ -87,12 +110,18 @@
                 document.getElementById('fileType').innerHTML = '类型: ' + file.type;
             }
         }
+
         function resetProgress() {
             document.getElementById('percentNumber').innerHTML = '';
             document.getElementById("progress").style.width = "0%";
         }
+
         function uploadFile() {
             resetProgress();
+            if (document.getElementById('fileInput').files.length == 0) {
+                document.getElementById("fileInput").click();
+                return false;
+            }
             if (isUploading) {
                 thisXhr.abort();
                 setUploading(false);
@@ -103,19 +132,13 @@
                         showMessage(`KEY: "${key}"已存在`);
                         allBtnEnable();
                     } else {
-                        let fd = new FormData();
-                        let now = new Date().toLocaleString();
-                        if (document.getElementById('fileInput').files.length == 0) {
-                            showMessage("未选择文件");
-                            allBtnEnable()
-                            return false;
-                        }
                         let file = document.getElementById('fileInput').files[0];
                         if (file.size > 1024 * 1024 * 200) {
                             showMessage("文件过大");
                             allBtnEnable()
                             return false;
                         }
+                        let fd = new FormData();
                         fd.append(fileReqName, file);
                         fd.append(keyReqName, document.getElementById('key').value);
                         let xhr = new XMLHttpRequest();
@@ -150,6 +173,7 @@
                 document.getElementById('percentNumber').innerHTML = '不支持进度计算';
             }
         }
+
         function uploadComplete(evt) {
             let res = JSON.parse(evt.currentTarget.response);
             if (res.status == 200) {
@@ -159,11 +183,16 @@
             }
             allBtnEnable();
         }
+
         function uploadFailed(evt) {
             showMessage("上传错误");
             allBtnEnable();
         }
-        function uploadCanceled(evt) { showMessage("取消上传"); allBtnEnable(); }
+
+        function uploadCanceled(evt) {
+            showMessage("取消上传");
+            allBtnEnable();
+        }
         // 提取
         function download() {
             let key = document.getElementById('key').value;
@@ -173,6 +202,7 @@
             document.getElementById('fileName').innerHTML = "";
             document.getElementById('fileSize').innerHTML = "";
             document.getElementById('fileType').innerHTML = "";
+            document.getElementById('fileInput').value = '';
             searchKey(key, hasKey => {
                 if (hasKey) {
                     showMessage(`已开始下载...`);
@@ -184,6 +214,7 @@
                 }
             });
         }
+
         function searchKey(key, cb) {
             if (key == null || key.trim() == "") {
                 showMessage("key不能为空");
@@ -202,9 +233,15 @@
                 allBtnEnable();
             })
         }
+
         function showMessage(msg) {
-            let now = new Date().toLocaleString();
-            document.getElementById("msg").innerHTML = now + ": " + msg;
+            let now = new Date().toLocaleTimeString();
+            document.getElementById("msg").innerHTML = msg;
+            setTimeout(() => {
+                if (document.getElementById("msg").innerHTML == msg) {
+                    document.getElementById("msg").innerHTML = "";
+                }
+            }, 3000);
         }
 
         function editBtnDisabled(btnId, disabled) {
@@ -218,9 +255,16 @@
             setUploading(false);
         }
         let getFetch = (url, method, okCallback, errorCallback, data, headers) => {
-            let option = { method: method, credentials: 'include' };
-            if (data) { option.body = data; }
-            if (headers) { option.headers = headers; }
+            let option = {
+                method: method,
+                credentials: 'include'
+            };
+            if (data) {
+                option.body = data;
+            }
+            if (headers) {
+                option.headers = headers;
+            }
             fetch(url, option)
                 .then(response => response.json())
                 .then(response => {
@@ -230,9 +274,21 @@
                     if (errorCallback) errorCallback(error);
                 });
         }
-        let getJsonPost = (url, okCallback, errorCallback, data) => { getFetch(url, "POST", okCallback, errorCallback, JSON.stringify(data), util.fetchConfig.contentTypeJson); }
-        let getJsonGet = (url, okCallback, errorCallback) => { getFetch(url, "GET", okCallback, errorCallback, null, null); }
-        let fetchConfig = { contentTypeJson: { 'content-type': 'application/json' }, contentTypeText: { 'content-type': 'application/txt' } };
+        let getJsonPost = (url, okCallback, errorCallback, data) => {
+            getFetch(url, "POST", okCallback, errorCallback, JSON.stringify(data), util.fetchConfig
+                .contentTypeJson);
+        }
+        let getJsonGet = (url, okCallback, errorCallback) => {
+            getFetch(url, "GET", okCallback, errorCallback, null, null);
+        }
+        let fetchConfig = {
+            contentTypeJson: {
+                'content-type': 'application/json'
+            },
+            contentTypeText: {
+                'content-type': 'application/txt'
+            }
+        };
     </script>
 </body>
 
