@@ -10,31 +10,28 @@
     <title>1H 文件共享</title>
     <style>
         .action-btn {
-            /* height: 60px;
-            width: 110px;
-            margin: 10px 20px;
-            border-radius: 5px;
-            border: 0;
-            box-shadow: 5px 5px 6px 0 rgb(0 0 0 / 20%), 0 6px 20px 0 rgb(0 0 0 / 19%);
-            font-weight: bold;
-            font-size: large; */
-            background: #2f435e;
+            background: #535a64;
             color: #f2f2f2;
             margin: 5px;
             padding: 10px 30px 10px 30px;
-            font-size: 16px;
+            font-size: 22px;
             font-family: 微软雅黑, 宋体, Arial, Helvetica, Verdana, sans-serif;
             font-weight: bold;
-            border-radius: 3px;
+            border-radius: 5px;
 
-            -webkit-transition: all linear 0.30s;
-            -moz-transition: all linear 0.30s;
-            transition: all linear 0.30s;
+            -webkit-transition: all linear 0.20s;
+            -moz-transition: all linear 0.20s;
+            transition: all linear 0.20s;
+            cursor: pointer;
+        }
+
+        .action-btn:hover {
+            background: #c14c4c;
         }
 
         #key {
-            height: 43px;
-            width: 73%;
+            height: 63px;
+            width: 76%;
             font-size: xx-large;
             border: 0;
             border-radius: 5px;
@@ -43,6 +40,19 @@
             font-family: math;
             letter-spacing: 10px;
             font-weight: bold;
+            -webkit-transition: all linear 0.08s;
+            -moz-transition: all linear 0.08s;
+            transition: all linear 0.08s;
+            box-shadow: 0 2px 4px 0 rgb(203 25 25 / 20%), 0 1px 5px 0 rgb(0 0 0 / 19%);
+            outline: none;
+        }
+
+        #key:focus,
+        #key:hover {
+            box-shadow: 0 8px 16px 0 rgb(203 25 25 / 20%), 0 6px 20px 0 rgb(0 0 0 / 19%);
+        }
+
+        #footer:hover {
             box-shadow: 0 8px 16px 0 rgb(203 25 25 / 20%), 0 6px 20px 0 rgb(0 0 0 / 19%);
         }
     </style>
@@ -51,13 +61,11 @@
     </script>
 </head>
 
-<body>
+<body style="background:#f7fafc;overflow-x: hidden;">
     <div id="pp" class="app" style="text-align: center;display: none;">
-        <h2 style="margin-top: 80px;">1H 文件共享</h2>
+        <h1 style="margin-top: 100px;letter-spacing: 10px;">1H文件共享</h1>
         <div style="margin-top: 50px;">
-            <!-- <label style="font-size: x-large;">KEY </label> --><input id="key" placeholder="提取码"
-                onkeydown="inputKeyDown(event)" />
-            <br><br>
+            <input id="key" placeholder="提取码" onkeydown="inputKeyDown(event)" /> <br><br><br>
             <input type="file" value="" id="fileInput" name="files" onchange="fileSelected()"
                 style="opacity: 0;height: 0;" />
             <!-- 按钮 -->
@@ -73,7 +81,7 @@
             <!-- 提示条 -->
             <div style="margin:0 auto;text-align: center;font-size: large;font-weight: bold;">
                 <br>
-                <div id="msg"></div><br>
+                <div id="msg">⁣⁣⁣⁣　</div><br>
             </div>
             <!-- 上传的文件信息 -->
             <div style="margin: 0 auto;text-align: left;width:80%;font-size: large;font-weight: bold;">
@@ -83,8 +91,9 @@
             </div>
 
             <div id="upload-parent" style="display: none;margin-top: 15px;">
-                <div style="width:80%;height:25px;border:2px solid #aeaeae;border-radius: 5px;margin: 0 auto;">
-                    <div id="progress" style="background:#4cff00;height:25px;width:0%;"></div><br>
+                <div style="width:80%;height:20px;border:2px solid #d3a7a7;border-radius: 5px;margin: 0 auto;">
+                    <div id="progress" style="background:#CCCC66;height:20px;width:0%;border-radius: 0px 5px 5px 0px;">
+                    </div><br>
                     <div id="percentNumber"></div>
                 </div>
                 <br><br>
@@ -95,11 +104,7 @@
         <label style="font-size: larger;font-weight: bold;">微信浏览器不好用, 用自带浏览器打开 ↑</label>
     </div>
     <script type="text/javascript">
-        if (isWxB()) {
-            document.getElementById("dd").style.display = "block";
-        } else {
-            document.getElementById("pp").style.display = "block";
-        }
+        document.getElementById(isWxB() ? "dd" : "pp").style.display = "block";
         let tmpfServerPath = "https://124.223.78.28:8766/tmp-file";
         // let tmpfServerPath = "https://127.0.0.1:8766/tmp-file";
         let fileReqName = "file";
@@ -118,6 +123,7 @@
                     // 下载
                     document.getElementById("download").click();
                 }
+                document.activeElement.blur();
             }
         }
 
@@ -153,7 +159,7 @@
         }
 
         function uploadFile() {
-            showMessage("");
+            showMessage("　");
             resetProgress();
             if (document.getElementById('fileInput').files.length == 0) {
                 document.getElementById("fileInput").click();
@@ -165,16 +171,15 @@
             } else {
                 let key = document.getElementById('key').value;
                 if (!checkKey(key)) {
-                    showMessage("使用汉字,数字,字母,下划线填 提取码");
                     return false;
                 }
                 searchKey(key, hasKey => {
                     if (hasKey) {
-                        showMessage(`提取码: "${key}"已存在`);
+                        showMessage(`提取码"${key}"被占用了,换一个试试`);
                         allBtnEnable();
                     } else {
                         let file = document.getElementById('fileInput').files[0];
-                        if (file.size > 1024 * 1024 * 200) {
+                        if (file.size > 1024 * 1024 * 1000) {
                             showMessage("文件过大");
                             allBtnEnable()
                             return false;
@@ -216,7 +221,11 @@
         }
 
         function checkKey(key) {
-            return key.match("^[a-zA-Z0-9_\u4e00-\u8fa5]+$");
+            let res = key.match("^[a-zA-Z0-9_\u4e00-\u8fa5]+$");
+            if (!res) {
+                showMessage("提取码 使用用汉字,数字,字母,下划线");
+            }
+            return res;
         }
 
         function uploadComplete(evt) {
@@ -242,7 +251,6 @@
         function download() {
             let key = document.getElementById('key').value;
             if (!checkKey(key)) {
-                showMessage("使用汉字,数字,字母,下划线填 提取码");
                 return false;
             }
             resetProgress();
@@ -295,7 +303,7 @@
             if (!fix) {
                 setTimeout(() => {
                     if (document.getElementById("msg").innerHTML == msg) {
-                        document.getElementById("msg").innerHTML = "";
+                        document.getElementById("msg").innerHTML = "⁣⁣⁣⁣　";
                     }
                 }, 3000);
             }
@@ -354,6 +362,12 @@
             return ua.indexOf('micromessenger') != -1;
         }
     </script>
+    <div style="width:20px;height:20px;"></div>
+    <footer style="text-align: center;width: 100%;position: absolute;bottom: 10px;">
+        <label id="footer"
+            style="font-size: larger;font-weight: bold;font-family: fantasy;letter-spacing: 5px;cursor: pointer;"
+            onclick="window.open('https://github.com/Zsk-d')">Zsk-d</label>
+    </footer>
 </body>
 
 </html>
