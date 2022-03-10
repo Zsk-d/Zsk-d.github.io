@@ -30,7 +30,7 @@
         }
 
         #key {
-            height: 60px;
+            height: 82px;
             width: 76%;
             font-size: xx-large;
             border: 0;
@@ -45,6 +45,8 @@
             transition: all linear 0.08s;
             box-shadow: 0 2px 4px 0 rgb(203 25 25 / 20%), 0 1px 5px 0 rgb(0 0 0 / 19%);
             outline: none;
+            box-sizing: border-box;
+            caret-color: transparent;
         }
 
         #key:focus,
@@ -72,6 +74,7 @@
                     document.getElementById('msg').innerHTML ='';resetProgress(); document.getElementById('fileName').innerHTML = '';
                     document.getElementById('fileSize').innerHTML = '';
                     document.getElementById('fileInput').value = '';
+                    globalFile=null;
                     document.getElementById('fileType').innerHTML = '';" />
             </div>
             <!-- 提示条 -->
@@ -100,7 +103,26 @@
         <label style="font-size: larger;font-weight: bold;">微信浏览器不好用, 用自带浏览器打开 ↑</label>
     </div>
     <script type="text/javascript">
+        let globalFile = null;
         document.getElementById(isWxB() ? "dd" : "pp").style.display = "block";
+
+        document.getElementById("key").addEventListener("dragenter", (e) => {
+            e.preventDefault();
+            e.srcElement.setAttribute("placeholder", "松开文件上传");
+            e.srcElement.style.border = "dashed 5px #d19898";
+        })
+        document.getElementById("key").addEventListener("dragleave", (e) => {
+            e.preventDefault();
+            e.srcElement.setAttribute("placeholder", "提取码");
+            e.srcElement.style.border = "";
+        });
+        document.getElementById("key").addEventListener("drop", (e) => {
+            e.preventDefault();
+            e.srcElement.setAttribute("placeholder", "提取码");
+            e.srcElement.style.border = "";
+            globalFile = e.dataTransfer.files[0];
+            fileSelected(true);
+        });
         let tmpfServerPath = "https://124.223.78.28:8766/tmp-file";
         // let tmpfServerPath = "https://127.0.0.1:8766/tmp-file";
         let fileReqName = "file";
@@ -111,7 +133,7 @@
         function inputKeyDown(event) {
             let evt = window.event || e;
             if (evt.keyCode == 13 && !isUploading) {
-                let file = document.getElementById('fileInput').files[0];
+                let file = globalFile;
                 if (file) {
                     // 上传
                     document.getElementById("upload").click();
@@ -121,6 +143,10 @@
                 }
                 document.activeElement.blur();
             }
+        }
+
+        function resetFile() {
+            globalFile = null;
         }
 
         function setUploading(loading) {
@@ -135,8 +161,14 @@
             isUploading = loading;
         }
 
-        function fileSelected() {
-            let file = document.getElementById('fileInput').files[0];
+        function fileSelected(isDrop) {
+            let file = null;
+            if (!isDrop) {
+                file = document.getElementById("fileInput").files[0];
+                globalFile = file;
+            } else {
+                file = globalFile;
+            }
             if (file) {
                 let fileSize = 0;
                 if (file.size > 1024 * 1024)
@@ -157,7 +189,7 @@
         function uploadFile() {
             showMessage("　");
             resetProgress();
-            if (document.getElementById('fileInput').files.length == 0) {
+            if (document.getElementById('fileInput').files.length == 0 && globalFile == null) {
                 document.getElementById("fileInput").click();
                 return false;
             }
@@ -174,7 +206,7 @@
                         showMessage(`提取码"${key}"被占用了,换一个试试`);
                         allBtnEnable();
                     } else {
-                        let file = document.getElementById('fileInput').files[0];
+                        let file = globalFile;
                         if (file.size > 1024 * 1024 * 1000) {
                             showMessage("文件过大");
                             allBtnEnable()
@@ -249,6 +281,7 @@
             if (!checkKey(key)) {
                 return false;
             }
+            globalFile = null;
             resetProgress();
             editBtnDisabled("clear", true);
             editBtnDisabled("upload", true);
