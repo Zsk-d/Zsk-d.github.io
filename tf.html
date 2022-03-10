@@ -46,7 +46,7 @@
             box-shadow: 0 2px 4px 0 rgb(203 25 25 / 20%), 0 1px 5px 0 rgb(0 0 0 / 19%);
             outline: none;
             box-sizing: border-box;
-            caret-color: transparent;
+            caret-color: #00000054;
         }
 
         #key:focus,
@@ -107,6 +107,7 @@
         document.getElementById(isWxB() ? "dd" : "pp").style.display = "block";
 
         document.getElementById("key").addEventListener("dragenter", (e) => {
+            e.srcElement.style.caretColor = "transparent";
             e.preventDefault();
             e.srcElement.setAttribute("placeholder", "松开文件上传");
             e.srcElement.style.border = "dashed 5px #d19898";
@@ -115,12 +116,14 @@
             e.preventDefault();
             e.srcElement.setAttribute("placeholder", "提取码");
             e.srcElement.style.border = "";
+            e.srcElement.style.caretColor = "#00000054";
         });
         document.getElementById("key").addEventListener("drop", (e) => {
             e.preventDefault();
             e.srcElement.setAttribute("placeholder", "提取码");
             e.srcElement.style.border = "";
             globalFile = e.dataTransfer.files[0];
+            e.srcElement.style.caretColor = "#00000054";
             fileSelected(true);
         });
         let tmpfServerPath = "https://124.223.78.28:8766/tmp-file";
@@ -141,7 +144,10 @@
                     // 下载
                     document.getElementById("download").click();
                 }
-                document.activeElement.blur();
+                if (document.getElementById("key").value.trim() != "") {
+                    document.activeElement.blur();
+                }
+
             }
         }
 
@@ -177,7 +183,7 @@
                     fileSize = (Math.round(file.size * 100 / 1024) / 100).toString() + 'KB';
                 document.getElementById('fileName').innerHTML = '文件名: ' + file.name;
                 document.getElementById('fileSize').innerHTML = '大小: ' + fileSize;
-                document.getElementById('fileType').innerHTML = '类型: ' + file.type;
+                document.getElementById('fileType').innerHTML = file.type ? ('类型: ' + file.type) : "";
             }
         }
 
