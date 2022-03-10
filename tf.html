@@ -52,7 +52,7 @@
     <div class="app" style="text-align: center;">
         <h2 style="margin-top: 80px;">1H 文件共享</h2>
         <div style="margin-top: 50px;">
-            <!-- <label style="font-size: x-large;">KEY </label> --><input id="key" placeholder="Key" />
+            <!-- <label style="font-size: x-large;">KEY </label> --><input id="key" placeholder="提取码 可以中文" />
             <br><br>
             <input type="file" value="" id="fileInput" name="files" onchange="fileSelected()"
                 style="opacity: 0;height: 0;" />
@@ -138,9 +138,13 @@
                 setUploading(false);
             } else {
                 let key = document.getElementById('key').value;
+                if (!checkKey(key)) {
+                    showMessage("使用汉字,数字,字母,下划线填 提取码");
+                    return false;
+                }
                 searchKey(key, hasKey => {
                     if (hasKey) {
-                        showMessage(`KEY: "${key}"已存在`);
+                        showMessage(`提取码: "${key}"已存在`);
                         allBtnEnable();
                     } else {
                         let file = document.getElementById('fileInput').files[0];
@@ -185,6 +189,10 @@
             }
         }
 
+        function checkKey(key) {
+            return key.match("^[a-zA-Z0-9_\u4e00-\u8fa5]+$");
+        }
+
         function uploadComplete(evt) {
             let res = JSON.parse(evt.currentTarget.response);
             if (res.status == 200) {
@@ -207,6 +215,10 @@
         // 提取
         function download() {
             let key = document.getElementById('key').value;
+            if (!checkKey(key)) {
+                showMessage("使用汉字,数字,字母,下划线填 提取码");
+                return false;
+            }
             resetProgress();
             editBtnDisabled("clear", true);
             editBtnDisabled("upload", true);
@@ -220,7 +232,7 @@
                     window.location.href = `${tmpfServerPath}/file/${key}`;
                     allBtnEnable();
                 } else {
-                    showMessage(`KEY: "${key}"不存在`);
+                    showMessage(`提取码: "${key}"不存在`);
                     allBtnEnable();
                 }
             });
@@ -228,7 +240,7 @@
 
         function searchKey(key, cb) {
             if (key == null || key.trim() == "") {
-                showMessage("key不能为空");
+                showMessage("老铁, 先填 提取码");
                 allBtnEnable();
                 return false;
             }
@@ -240,10 +252,10 @@
                     allBtnEnable();
                 }
             }, error => {
-                if(error.toString() == "TypeError: Failed to fetch"){
+                if (error.toString() == "TypeError: Failed to fetch") {
                     alert("请允许弹出窗口并继续访问");
                     window.open(`${tmpfServerPath}/trust`);
-                }else{
+                } else {
                     showMessage(error);
                     allBtnEnable();
                 }
