@@ -227,7 +227,7 @@
                         xhr.addEventListener("error", uploadFailed, false);
                         xhr.addEventListener("abort", uploadCanceled, false);
                         xhr.open("POST", `${tmpfServerPath}/upload`);
-                        showMessage("上传中...");
+                        showMessage("上传中,请不要离开此页面...",true);
                         editBtnDisabled("clear", true);
                         editBtnDisabled("download", true);
                         setUploading(true);
