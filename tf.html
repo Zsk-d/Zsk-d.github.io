@@ -46,10 +46,13 @@
             box-shadow: 0 8px 16px 0 rgb(203 25 25 / 20%), 0 6px 20px 0 rgb(0 0 0 / 19%);
         }
     </style>
+    <script>
+
+    </script>
 </head>
 
 <body>
-    <div class="app" style="text-align: center;">
+    <div id="pp" class="app" style="text-align: center;display: none;">
         <h2 style="margin-top: 80px;">1H 文件共享</h2>
         <div style="margin-top: 50px;">
             <!-- <label style="font-size: x-large;">KEY </label> --><input id="key" placeholder="提取码"
@@ -88,7 +91,15 @@
             </div>
         </div>
     </div>
+    <div id="dd" style="display: none;float: right;margin: 10px;">
+        <label style="font-size: larger;font-weight: bold;">微信浏览器不好用, 用自带浏览器打开 ↗</label>
+    </div>
     <script type="text/javascript">
+        if (isWxB()) {
+            document.getElementById("dd").style.display = "block";
+        } else {
+            document.getElementById("pp").style.display = "block";
+        }
         let tmpfServerPath = "https://124.223.78.28:8766/tmp-file";
         // let tmpfServerPath = "https://127.0.0.1:8766/tmp-file";
         let fileReqName = "file";
@@ -337,6 +348,11 @@
                 'content-type': 'application/txt'
             }
         };
+
+        function isWxB() {
+            var ua = navigator.userAgent.toLowerCase();
+            return ua.indexOf('micromessenger') != -1;
+        }
     </script>
 </body>
 
