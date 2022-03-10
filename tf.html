@@ -52,7 +52,8 @@
     <div class="app" style="text-align: center;">
         <h2 style="margin-top: 80px;">1H 文件共享</h2>
         <div style="margin-top: 50px;">
-            <!-- <label style="font-size: x-large;">KEY </label> --><input id="key" placeholder="提取码" />
+            <!-- <label style="font-size: x-large;">KEY </label> --><input id="key" placeholder="提取码"
+                onkeydown="inputKeyDown(event)" />
             <br><br>
             <input type="file" value="" id="fileInput" name="files" onchange="fileSelected()"
                 style="opacity: 0;height: 0;" />
@@ -94,6 +95,20 @@
         let keyReqName = "key";
         let isUploading = false;
         let thisXhr = null;
+
+        function inputKeyDown(event) {
+            let evt = window.event || e;
+            if (evt.keyCode == 13 && !isUploading) {
+                let file = document.getElementById('fileInput').files[0];
+                if (file) {
+                    // 上传
+                    document.getElementById("upload").click();
+                } else {
+                    // 下载
+                    document.getElementById("download").click();
+                }
+            }
+        }
 
         function setUploading(loading) {
             let btn = document.getElementById("upload");
@@ -244,6 +259,7 @@
                 allBtnEnable();
                 return false;
             }
+            showMessage("查询中...", true);
             getJsonGet(`${tmpfServerPath}/key/${key}`, res => {
                 if (res.status == 200) {
                     cb(res.data);
