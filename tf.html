@@ -9,6 +9,10 @@
         content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
     <title>1H 文件共享</title>
     <style>
+        body::-webkit-scrollbar {
+            width: 0px;
+        }
+
         .action-btn {
             background: #535a64;
             color: #f2f2f2;
@@ -29,7 +33,8 @@
             background: #c14c4c;
         }
 
-        #key {
+        #key,
+        #string-area {
             height: 82px;
             width: 76%;
             font-size: xx-large;
@@ -49,8 +54,24 @@
             caret-color: #00000054;
         }
 
+        #string-area {
+            margin: 0 auto;
+            width: 90%;
+            resize: vertical;
+            text-align: left;
+            caret-color: #000000;
+            min-height: 200px;
+            font-size: medium;
+            letter-spacing: 0px;
+            -webkit-transition: none;
+            -moz-transition: none;
+            transition: none;
+        }
+
         #key:focus,
-        #key:hover {
+        #key:hover,
+        #string-area:focus,
+        #string-area:hover {
             box-shadow: 0 8px 16px 0 rgb(203 25 25 / 20%), 0 6px 20px 0 rgb(0 0 0 / 19%);
         }
     </style>
@@ -59,15 +80,26 @@
     </script>
 </head>
 
-<body style="background:#f7fafc;overflow-x: hidden;">
+<body style="background:#f7fafc;overflow-x:hidden;">
     <div id="pp" class="app" style="text-align: center;display: none;">
-        <h1 style="margin-top: 100px;letter-spacing: 10px;">1H文件共享</h1>
+        <div style="margin-top: 100px;">
+            <label id="header" style="letter-spacing: 10px;font-size: xx-large;font-weight: bold;">1H文件共享</label>
+            <svg t="1646965553579" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg"
+                p-id="2189" xmlns:xlink="http://www.w3.org/1999/xlink" width="25" height="25" style="cursor: pointer;"
+                onclick="switchAction()">
+                <defs>
+                    <style type="text/css"></style>
+                </defs>
+                <path
+                    d="M234.666667 430.933333H128l85.333333-81.066666L345.6 213.333333l51.2 51.2-81.066667 81.066667H896V426.666667H234.666667v4.266666zM793.6 554.666667H896l-85.333333 81.066666-132.266667 132.266667-51.2-51.2 81.066667-81.066667H128V554.666667h665.6z"
+                    fill="#444444" p-id="2190"></path>
+            </svg>
+        </div>
         <div style="margin-top: 50px;">
-            <input id="key" placeholder="提取码" onkeydown="inputKeyDown(event)" /> <br><br><br>
-            <input type="file" value="" id="fileInput" name="files" onchange="fileSelected()"
-                style="opacity: 0;height: 0;" />
+            <input id="key" placeholder="提取码" onkeydown="inputKeyDown(event)" /> <br><br>
+            <textarea id="string-area" style="display: none;" placeholder="输入或获取文字"></textarea><br>
             <!-- 按钮 -->
-            <div style="margin:0 auto;">
+            <div id="save-file-btns" style="margin:0 auto;">
                 <input class="action-btn" id="download" type="button" value="提 取" onclick="download()" />
                 <input class="action-btn" id="upload" type="button" value="上 传" onclick="uploadFile()" />
                 <input class="action-btn" id="clear" type="button" value="清 空" onclick="document.getElementById('key').value='';
@@ -76,6 +108,14 @@
                     document.getElementById('fileInput').value = '';
                     globalFile=null;
                     document.getElementById('fileType').innerHTML = '';" />
+            </div>
+            <div id="save-string-btns" style="margin:0 auto;display: none;">
+                <input class="action-btn" id="get-string" type="button" value="获 取" onclick="getString()" />
+                <input class="action-btn" id="save-string" type="button" value="保 存" onclick="saveString()" />
+                <input class="action-btn" id="clear-string" type="button" value="清 空" onclick="
+                    document.getElementById('key').value='';
+                    document.getElementById('string-area').value='';
+                    document.getElementById('msg').innerHTML ='';" />
             </div>
             <!-- 提示条 -->
             <div style="margin:0 auto;text-align: center;font-size: large;font-weight: bold;">
@@ -105,7 +145,18 @@
     <script type="text/javascript">
         let globalFile = null;
         document.getElementById(isWxB() ? "dd" : "pp").style.display = "block";
-
+        if (!isWxB()) {
+            let search = window.location.search.slice(1).split("&");
+            search.forEach(item => {
+                let param = item.split("=");
+                if (param[0] == "key") {
+                    document.getElementById("key").value = param[1];
+                    setTimeout(() => {
+                        document.getElementById("download").click();
+                    }, 600);
+                }
+            });
+        }
         document.getElementById("key").addEventListener("dragenter", (e) => {
             e.srcElement.style.caretColor = "transparent";
             e.preventDefault();
@@ -126,33 +177,101 @@
             e.srcElement.style.caretColor = "#00000054";
             fileSelected(true);
         });
-        let tmpfServerPath = "https://124.223.78.28:8766/tmp-file";
+        let tmpfFileServerPath = "https://124.223.78.28:8766/tmp-file";
+        let tmpfStringServerPath = "https://124.223.78.28:8766/tmp-string";
         // let tmpfServerPath = "https://127.0.0.1:8766/tmp-file";
         let fileReqName = "file";
         let keyReqName = "key";
         let isUploading = false;
         let thisXhr = null;
+        let actionType = 0; // 文件0 字符1
 
         function inputKeyDown(event) {
             let evt = window.event || e;
-            if (evt.keyCode == 13 && !isUploading) {
-                let file = globalFile;
-                if (file) {
-                    // 上传
-                    document.getElementById("upload").click();
-                } else {
-                    // 下载
-                    document.getElementById("download").click();
+            if (evt.keyCode == 13) {
+                if (actionType == 0 && !isUploading) {
+                    let file = globalFile;
+                    if (file) {
+                        // 上传
+                        document.getElementById("upload").click();
+                    } else {
+                        // 下载
+                        document.getElementById("download").click();
+                    }
+                    if (document.getElementById("key").value.trim() != "") {
+                        document.activeElement.blur();
+                    }
                 }
-                if (document.getElementById("key").value.trim() != "") {
-                    document.activeElement.blur();
+                if (actionType == 1) {
+                    let value = document.getElementById("string-area").value;
+                    if (value.trim()) {
+                        document.getElementById("save-string").click();
+                    } else {
+                        document.getElementById("get-string").click();
+                    }
                 }
+            }
+        }
 
+        function switchAction() {
+            if (actionType == 0) {
+                document.getElementById("header").innerText = "1H文字共享";
+                actionType = 1;
+                document.getElementById("save-file-btns").style.display = "none";
+                document.getElementById("string-area").style.display = "block";
+                document.getElementById("save-string-btns").style.display = "block";
+                document.getElementById("clear").click();
+            } else {
+                document.getElementById("header").innerText = "1H文件共享";
+                actionType = 0;
+                document.getElementById("string-area").style.display = "none";
+                document.getElementById("save-file-btns").style.display = "block";
+                document.getElementById("save-string-btns").style.display = "none";
+                document.getElementById("clear-string").click();
             }
         }
 
         function resetFile() {
             globalFile = null;
+        }
+
+        function getString() {
+            let key = document.getElementById("key").value;
+            if (!checkKey(key)) {
+                return false;
+            }
+            getJsonGet(`${tmpfStringServerPath}/string/${key}`, res => {
+                if (res.status == 200) {
+                    let string = res.data;
+                    document.getElementById("string-area").value = string;
+                    showMessage("查询成功");
+                } else {
+                    showMessage(res.msg);
+                }
+            });
+        }
+
+        function saveString() {
+            let key = document.getElementById("key").value;
+            let value = document.getElementById("string-area").value;
+            if (!checkKey(key)) {
+                return false;
+            }
+            if (value.trim() == '') {
+                showMessage("内容不能为空");
+                return false;
+            }
+            getJsonPost(`${tmpfStringServerPath}/save`, res => {
+                if (res.status == 200) {
+                    showMessage("保存成功,有效期至: " + new Date(new Date().getTime() + 1000 * 60 * 60)
+                    .toLocaleString());
+                } else {
+                    showMessage(res.msg);
+                }
+            }, null, {
+                key: key,
+                value: value
+            });
         }
 
         function setUploading(loading) {
@@ -226,8 +345,8 @@
                         xhr.addEventListener("load", uploadComplete, false);
                         xhr.addEventListener("error", uploadFailed, false);
                         xhr.addEventListener("abort", uploadCanceled, false);
-                        xhr.open("POST", `${tmpfServerPath}/upload`);
-                        showMessage("上传中,请不要离开此页面...",true);
+                        xhr.open("POST", `${tmpfFileServerPath}/upload`);
+                        showMessage("上传中,请不要离开此页面...", true);
                         // document.getElementById("key").setAttribute("readonly",true);
                         editBtnDisabled("clear", true);
                         editBtnDisabled("download", true);
@@ -299,7 +418,7 @@
             searchKey(key, hasKey => {
                 if (hasKey) {
                     showMessage(`已开始下载...`, true);
-                    window.location.href = `${tmpfServerPath}/file/${key}`;
+                    window.location.href = `${tmpfFileServerPath}/file/${key}`;
                     allBtnEnable();
                 } else {
                     showMessage(`提取码: "${key}"不存在`);
@@ -315,7 +434,7 @@
                 return false;
             }
             showMessage("查询中...", true);
-            getJsonGet(`${tmpfServerPath}/key/${key}`, res => {
+            getJsonGet(`${tmpfFileServerPath}/key/${key}`, res => {
                 if (res.status == 200) {
                     cb(res.data);
                 } else {
@@ -324,8 +443,8 @@
                 }
             }, error => {
                 // if (error.toString() == "TypeError: Failed to fetch") {
-                    alert("请允许弹出窗口并继续访问");
-                    window.open(`${tmpfServerPath}/trust`);
+                alert("请允许弹出窗口并继续访问");
+                window.open(`${tmpfFileServerPath}/trust`);
                 // } else {
                 //     showMessage(error);
                 //     allBtnEnable();
@@ -378,7 +497,7 @@
                 });
         }
         let getJsonPost = (url, okCallback, errorCallback, data) => {
-            getFetch(url, "POST", okCallback, errorCallback, JSON.stringify(data), util.fetchConfig
+            getFetch(url, "POST", okCallback, errorCallback, JSON.stringify(data), fetchConfig
                 .contentTypeJson);
         }
         let getJsonGet = (url, okCallback, errorCallback) => {
@@ -402,6 +521,7 @@
         <label style="font-size: larger;font-weight: bold;font-family: fantasy;letter-spacing: 5px;cursor: pointer;"
             onclick="window.open('https://github.com/Zsk-d')">Zsk-d</label>
     </footer> -->
+    <input type="file" value="" id="fileInput" name="files" onchange="fileSelected()" style="opacity: 0;height: 0px;" />
 </body>
 
 </html>
