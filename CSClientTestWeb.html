@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script>
+        function reset() {
+            localStorage.clear()
+            window.location.reload()
+        }
+    </script>
+</head>
+
+<body>
+    <!-- built files will be auto injected -->
+    <!-- Start of LiveAgent integration script: Chat button: Circle animated button 6 -->
+    <script type="text/javascript">
+        window.$nocs = {};
+        window.NOCS_ASSET_BASE = "http://nocs-server.7cace.com/";
+        window.CS_WEBSITE_ID = "132913b4-d259-40c1-a2f8-deff668b9364";
+        (function () {
+            d = document;
+            s = d.createElement("script");
+            s.src = "http://nocs-server.7cace.com/l.js";
+            s.async = 1;
+            d.getElementsByTagName("head")[0].appendChild(s);
+        })();</script>
+    <!-- End of LiveAgent integration script -->
+    <button onclick="reset()">重置对话</button>
+</body>
+
+</html>
