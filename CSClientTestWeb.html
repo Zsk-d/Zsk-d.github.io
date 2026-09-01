@@ -62,7 +62,7 @@
         .field__hint { margin: 0; color: #8290a2; font-size: 12px; line-height: 1.5; }
         .identity-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
 
-        button {
+        .test-button {
             min-height: 40px;
             padding: 0 15px;
             border: 0;
@@ -243,14 +243,14 @@
                 </div>
                 <div id="identity-status" class="identity-status" role="status" aria-live="polite"></div>
                 <div class="identity-actions">
-                    <button id="identity-submit" class="button--primary" type="submit">Send NOCS login identity</button>
-                    <button id="identity-clear" class="button--secondary" type="button">Clear NOCS identity</button>
+                    <button id="identity-submit" class="button--primary test-button" type="submit">Send NOCS login identity</button>
+                    <button id="identity-clear" class="button--secondary test-button" type="button">Clear NOCS identity</button>
                 </div>
             </form>
         </section>
 
         <div class="test-tools">
-            <button class="button--danger" type="button" onclick="reset()">Reset conversation</button>
+            <button class="button--danger test-button" type="button" onclick="reset()">Reset conversation</button>
         </div>
     </main>
 
